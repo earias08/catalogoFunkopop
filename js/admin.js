@@ -4,6 +4,10 @@ let listaFunkopop = [];
 const modalProducto = new bootstrap.Modal(
   document.getElementById("modalFunkopop")
 );
+// variable bandera que me ayuda a decidir cuando tengo que modificar y cuando creo un nuevo funkopop
+// modificarFunkopop=true estoy modificando un producto, cuando sea false estoy agregando un nuevo funkopop.
+let modificarFunkopop = false; 
+
 let btnAgregar = document.getElementById("btnAgregar");
 
 btnAgregar.addEventListener("click", function () {
@@ -91,8 +95,8 @@ function dibujarDatosEnTabla(_listaFunkopop) {
         <td>${_listaFunkopop[i].descripcion}</td>
         <td>${_listaFunkopop[i].imagen}</td>
         <td>
-            <button class="btn btn-warning">Editar</button>
-            <button class="btn btn-danger" onclick="eliminarFunkopop(this)">Borrar</button>
+            <button class="btn btn-warning" onclick="prepararFunkopop(this)" id="${_listaFunkopop[i].codigo}">Editar</button>
+            <button class="btn btn-danger" onclick="eliminarFunkopop(this)" id="${_listaFunkopop[i].codigo}">Borrar</button>
         </td>
     </tr>`;
     // agregar la fila al padre
@@ -102,5 +106,53 @@ function dibujarDatosEnTabla(_listaFunkopop) {
 }
 
 window.eliminarFunkopop = function (boton){
-    console.log('dentro de la funcion funkopop')
+    console.log(boton.id);
+    Swal.fire({
+      title: 'Esta seguro de eliminar el Funkopop',
+      text: "No puedes volver atras luego de eliminar un funkopop",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si',
+      cancelButtonText:'Cancelar',
+    }).then((result) => {
+      // if(true)
+      if (result.isConfirmed) {
+        // agregar la logica para eliminar el funkopop
+        // let funkopopFiltrado = listaFunkopop.filter(function (producto){
+        //   return producto.codigo != boton.id
+        // });
+        let funkopopFiltrado = listaFunkopop.filter((producto)=> producto.codigo != boton.id);
+
+        console.log(funkopopFiltrado);
+        listaFunkopop = funkopopFiltrado;
+        // guardar los datos en localstorage
+        localStorage.setItem('listaFunkoKey', JSON.stringify(funkopopFiltrado));
+        // cargar los nuevos datos en la tabla
+        leerDatos();
+
+        Swal.fire(
+          'Funkopop eliminado',
+          'El funkopop seleccionado fue borrado',
+          'success'
+        )
+      }
+    })
+}
+
+window.prepararFunkopop = function (boton){
+  // buscar el funkopop seleccionado
+  let funkopopEncontrado = listaFunkopop.find((producto) =>{return producto.codigo === boton.id});
+
+  console.log(funkopopEncontrado);
+  // completar con los datos todos inputs de mi formulario
+  document.getElementById('codigo').value = funkopopEncontrado.codigo;
+  document.getElementById('nombre').value = funkopopEncontrado.nombre;
+  document.getElementById('numSerie').value = funkopopEncontrado.numSerie;
+  document.getElementById('categoria').value = funkopopEncontrado.categoria;
+  document.getElementById('descripcion').value = funkopopEncontrado.descripcion;
+  document.getElementById('imagen').value = funkopopEncontrado.imagen;
+  // mostrar ventana modale
+  modalProducto.show();
 }

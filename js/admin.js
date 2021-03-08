@@ -11,14 +11,14 @@ let modificarFunkopop = false;
 let btnAgregar = document.getElementById("btnAgregar");
 
 btnAgregar.addEventListener("click", function () {
+  limpiarFormulario();
   modalProducto.show();
 });
 
 // llamar a la funcion que lee datos del localstorage
 leerDatos();
 
-window.agregarFunkopop = function (event) {
-  event.preventDefault();
+function agregarFunkopop() {
   console.log("dentro de agregar funko");
   // validar general
   // if(validarGeneral()){
@@ -59,6 +59,7 @@ window.agregarFunkopop = function (event) {
 
 function limpiarFormulario() {
   document.getElementById("formFunkopop").reset();
+  modificarFunkopop=false;
 }
 
 function leerDatos() {
@@ -153,6 +154,49 @@ window.prepararFunkopop = function (boton){
   document.getElementById('categoria').value = funkopopEncontrado.categoria;
   document.getElementById('descripcion').value = funkopopEncontrado.descripcion;
   document.getElementById('imagen').value = funkopopEncontrado.imagen;
+  // cambiar el estado de mi variable modificarFunkopop
+  modificarFunkopop = true;
   // mostrar ventana modale
   modalProducto.show();
+}
+
+window.guardarFunko = function(event){
+  event.preventDefault();
+  // if(true) es lo mismo que if(true===true)
+  if(modificarFunkopop){
+    // modificar un funkopop existente
+    modificarFunkoExistente();
+  }else{
+    agregarFunkopop();
+  }
+}
+
+
+function modificarFunkoExistente(){
+  // validar nuevamente los datos ingresados
+// tomar los valores modificados del formulario
+let codigo = document.getElementById('codigo').value;
+let nombre = document.getElementById('nombre').value;
+let categoria = document.getElementById('categoria').value;
+let numSerie = document.getElementById('numSerie').value;
+let descripcion = document.getElementById('descripcion').value;
+let imagen = document.getElementById('imagen').value;
+// buscar el objeto y modifico sus datos
+for(let i in listaFunkopop){
+  if(listaFunkopop[i].codigo === codigo){
+    listaFunkopop[i].nombre = nombre;
+    listaFunkopop[i].categoria = categoria;
+    listaFunkopop[i].numSerie = numSerie;
+    listaFunkopop[i].descripcion = descripcion;
+    listaFunkopop[i].imagen = imagen;
+  }
+}
+// actualizo el localstorage
+localStorage.setItem('listaFunkoKey', JSON.stringify(listaFunkopop));
+// mostrar alerta al usuario
+Swal.fire("Funkopop modificado", "El funkopop seleccionado fue modificado exitosamente.", "success");
+// dibujo los datos actualizados en la tabla
+leerDatos();
+// cerrar ventana modal
+modalProducto.hide();
 }
